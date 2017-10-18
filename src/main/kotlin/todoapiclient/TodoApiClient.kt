@@ -4,7 +4,7 @@ import org.funktionale.either.Either
 import retrofit.GsonConverterFactory
 import retrofit.Response
 import retrofit.Retrofit
-import todoapiclient.TodoApiClientConfig.Companion.BASE_ENDPOINT
+import todoapiclient.TodoApiClientConfig.BASE_ENDPOINT
 import todoapiclient.dto.TaskDto
 import todoapiclient.exception.ItemNotFoundError
 import todoapiclient.exception.NetworkError
@@ -18,7 +18,8 @@ class TodoApiClient @JvmOverloads constructor(baseEndpoint: String = BASE_ENDPOI
     private val todoService: TodoService
 
     init {
-        val retrofit = Retrofit.Builder().baseUrl(baseEndpoint)
+        val retrofit = Retrofit.Builder()
+                .baseUrl(baseEndpoint)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
         retrofit.client().interceptors().add(DefaultHeadersInterceptor())

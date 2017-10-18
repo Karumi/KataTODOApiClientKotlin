@@ -1,7 +1,5 @@
 package todoapiclient
 
-interface TodoApiClientConfig {
-    companion object {
-        val BASE_ENDPOINT = "http://jsonplaceholder.typicode.com"
-    }
+object TodoApiClientConfig {
+    val BASE_ENDPOINT = "http://jsonplaceholder.typicode.com"
 }
