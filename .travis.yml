@@ -1,3 +1,3 @@
 language: java
 
-script: ./gradlew checkstyle build
+script: ./gradlew ktlint test
