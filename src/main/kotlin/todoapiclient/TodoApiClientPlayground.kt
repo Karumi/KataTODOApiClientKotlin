@@ -8,11 +8,11 @@ object TodoApiClientPlayground {
         val todoApiClient = TodoApiClient()
         // Get all tasks.
         val tasks = todoApiClient.allTasks
-        print(tasks)
+        println(tasks)
 
         // Get task by id.
         val task = todoApiClient.getTaskById("1")
-        print(task)
+        println(task)
 
         //Delete task by id.
         todoApiClient.deleteTaskById("1")
@@ -20,15 +20,11 @@ object TodoApiClientPlayground {
         //Update task by id.
         val taskToUpdate = TaskDto("1", "1", "Finish this kata", false)
         val updatedTask = todoApiClient.updateTaskById(taskToUpdate)
-        print(updatedTask)
+        println(updatedTask)
 
         //Add task.
         val taskToAdd = TaskDto("1", "1", "Finish this kata", false)
         val addedTask = todoApiClient.addTask(taskToAdd)
-        print(addedTask)
-    }
-
-    private fun print(value: Any) {
-        println(value)
+        println(addedTask)
     }
 }
