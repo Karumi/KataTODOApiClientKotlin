@@ -14,19 +14,19 @@ import java.io.IOException
 
 open class MockWebServerTest {
 
-    private var server: MockWebServer? = null
+    private lateinit var server: MockWebServer
 
     @Before
     @Throws(Exception::class)
     open fun setUp() {
         this.server = MockWebServer()
-        this.server!!.start()
+        this.server.start()
     }
 
     @After
     @Throws(Exception::class)
     fun tearDown() {
-        server!!.shutdown()
+        server.shutdown()
     }
 
     @Throws(IOException::class)
@@ -35,46 +35,46 @@ open class MockWebServerTest {
         val fileContent = getContentFromFile(fileName)
         mockResponse.setResponseCode(code)
         mockResponse.setBody(fileContent)
-        server!!.enqueue(mockResponse)
+        server.enqueue(mockResponse)
     }
 
     @Throws(InterruptedException::class)
     protected fun assertRequestSentTo(url: String) {
-        val request = server!!.takeRequest()
+        val request = server.takeRequest()
         assertEquals(url, request.path)
     }
 
     @Throws(InterruptedException::class)
     protected fun assertGetRequestSentTo(url: String) {
-        val request = server!!.takeRequest()
+        val request = server.takeRequest()
         assertEquals(url, request.path)
         assertEquals("GET", request.method)
     }
 
     @Throws(InterruptedException::class)
     protected fun assertPostRequestSentTo(url: String) {
-        val request = server!!.takeRequest()
+        val request = server.takeRequest()
         assertEquals(url, request.path)
         assertEquals("POST", request.method)
     }
 
     @Throws(InterruptedException::class)
     protected fun assertPutRequestSentTo(url: String) {
-        val request = server!!.takeRequest()
+        val request = server.takeRequest()
         assertEquals(url, request.path)
         assertEquals("PUT", request.method)
     }
 
     @Throws(InterruptedException::class)
     protected fun assertDeleteRequestSentTo(url: String) {
-        val request = server!!.takeRequest()
+        val request = server.takeRequest()
         assertEquals(url, request.path)
         assertEquals("DELETE", request.method)
     }
 
     @Throws(InterruptedException::class)
     protected fun assertRequestSentToContains(vararg paths: String) {
-        val request = server!!.takeRequest()
+        val request = server.takeRequest()
 
         for (path in paths) {
             Assert.assertThat(request.path, containsString(path))
@@ -89,11 +89,11 @@ open class MockWebServerTest {
     }
 
     protected val baseEndpoint: String
-        get() = server!!.url("/").toString()
+        get() = server.url("/").toString()
 
     @Throws(InterruptedException::class, IOException::class)
     protected fun assertRequestBodyEquals(jsonFile: String) {
-        val request = server!!.takeRequest()
+        val request = server.takeRequest()
         assertEquals(getContentFromFile(jsonFile), request.body.readUtf8())
     }
 
@@ -103,7 +103,7 @@ open class MockWebServerTest {
             return ""
         }
 
-        val file = File(javaClass.getResource("/" + fileName).file!!)
+        val file = File(javaClass.getResource("/" + fileName).file)
         val lines = FileUtils.readLines(file, FILE_ENCODING)
         val stringBuilder = StringBuilder()
         for (line in lines) {
@@ -116,7 +116,7 @@ open class MockWebServerTest {
     private fun getRecordedRequestAtIndex(requestIndex: Int): RecordedRequest? {
         var request: RecordedRequest? = null
         for (i in 0..requestIndex) {
-            request = server!!.takeRequest()
+            request = server.takeRequest()
         }
         return request
     }
