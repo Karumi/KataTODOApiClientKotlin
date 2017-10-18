@@ -1,9 +1,13 @@
 package todoapiclient
 
-import todoapiclient.dto.TaskDto
 import retrofit.Call
-import retrofit.http.*
-
+import retrofit.http.Body
+import retrofit.http.DELETE
+import retrofit.http.GET
+import retrofit.http.POST
+import retrofit.http.PUT
+import retrofit.http.Path
+import todoapiclient.dto.TaskDto
 
 internal interface TodoService {
 
