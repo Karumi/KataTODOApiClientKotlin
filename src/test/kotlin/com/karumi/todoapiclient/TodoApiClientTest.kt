@@ -1,19 +1,25 @@
 package com.karumi.todoapiclient
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import todoapiclient.TodoApiClient
 import todoapiclient.dto.TaskDto
-import todoapiclient.exception.ItemNotFoundException
-import todoapiclient.exception.UnknownErrorException
+import todoapiclient.exception.ItemNotFoundError
+import todoapiclient.exception.UnknownApiError
 
 class TodoApiClientTest : MockWebServerTest() {
+
+    companion object {
+        private val ANY_TASK_ID = "1"
+        private val ANY_TASK = TaskDto("1", "2", "Finish this kata", false)
+    }
 
     private lateinit var apiClient: TodoApiClient
 
     @Before
-    @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
         val mockWebServerEndpoint = baseEndpoint
@@ -21,7 +27,6 @@ class TodoApiClientTest : MockWebServerTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun sendsAcceptAndContentTypeHeaders() {
         enqueueMockResponse(200, "getTasksResponse.json")
 
@@ -31,7 +36,6 @@ class TodoApiClientTest : MockWebServerTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun sendsContentTypeHeader() {
         enqueueMockResponse(200, "getTasksResponse.json")
 
@@ -41,7 +45,6 @@ class TodoApiClientTest : MockWebServerTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun sendsGetAllTaskRequestToTheCorrectEndpoint() {
         enqueueMockResponse(200, "getTasksResponse.json")
 
@@ -51,26 +54,25 @@ class TodoApiClientTest : MockWebServerTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun parsesTasksProperlyGettingAllTheTasks() {
         enqueueMockResponse(200, "getTasksResponse.json")
 
-        val tasks = apiClient.allTasks
+        val tasks = apiClient.allTasks.component2()!!
 
-        assertEquals(tasks.size.toLong(), 200)
+        assertEquals(200, tasks.size.toLong())
         assertTaskContainsExpectedValues(tasks[0])
     }
 
-    @Test(expected = UnknownErrorException::class)
-    @Throws(Exception::class)
+    @Test
     fun throwsUnknownErrorExceptionIfThereIsNotHandledErrorGettingAllTasks() {
         enqueueMockResponse(418)
 
-        apiClient.allTasks
+        val (error) = apiClient.allTasks
+
+        assertEquals(UnknownApiError(418), error)
     }
 
     @Test
-    @Throws(Exception::class)
     fun sendsGetTaskByIdRequestToTheCorrectPath() {
         enqueueMockResponse(200, "getTaskByIdResponse.json")
 
@@ -84,29 +86,30 @@ class TodoApiClientTest : MockWebServerTest() {
     fun parsesTaskProperlyGettingTaskById() {
         enqueueMockResponse(200, "getTaskByIdResponse.json")
 
-        val task = apiClient.getTaskById(ANY_TASK_ID)
+        val task = apiClient.getTaskById(ANY_TASK_ID).component2()!!
 
         assertTaskContainsExpectedValues(task)
     }
 
-    @Test(expected = ItemNotFoundException::class)
-    @Throws(Exception::class)
+    @Test
     fun returnsItemNotFoundGettingTaskByIdIfThereIsNoTaskWithThePassedId() {
         enqueueMockResponse(404)
 
-        apiClient.getTaskById(ANY_TASK_ID)
-    }
+        val (error) = apiClient.getTaskById(ANY_TASK_ID)
 
-    @Test(expected = UnknownErrorException::class)
-    @Throws(Exception::class)
-    fun throwsUnknownErrorExceptionIfThereIsNotHandledErrorGettingTaskById() {
-        enqueueMockResponse(418)
-
-        apiClient.getTaskById(ANY_TASK_ID)
+        assertEquals(ItemNotFoundError, error)
     }
 
     @Test
-    @Throws(Exception::class)
+    fun throwsUnknownErrorExceptionIfThereIsNotHandledErrorGettingTaskById() {
+        enqueueMockResponse(418)
+
+        val (error) = apiClient.getTaskById(ANY_TASK_ID)
+
+        assertEquals(UnknownApiError(418), error)
+    }
+
+    @Test
     fun sendsAddTaskRequestToTheCorrectPath() {
         enqueueMockResponse(201, "addTaskResponse.json")
 
@@ -116,7 +119,6 @@ class TodoApiClientTest : MockWebServerTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun sendsTheCorrectBodyAddingANewTask() {
         enqueueMockResponse(201, "addTaskResponse.json")
 
@@ -126,25 +128,24 @@ class TodoApiClientTest : MockWebServerTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testParsesTheTaskCreatedProperlyAddingANewTask() {
         enqueueMockResponse(201, "addTaskResponse.json")
 
-        val task = apiClient.addTask(ANY_TASK)
+        val task = apiClient.addTask(ANY_TASK).component2()!!
 
         assertTaskContainsExpectedValues(task)
     }
 
-    @Test(expected = UnknownErrorException::class)
-    @Throws(Exception::class)
+    @Test
     fun returnsUnknownErrorIfThereIsAnyErrorAddingATask() {
         enqueueMockResponse(418)
 
-        apiClient.addTask(ANY_TASK)
+        val (error) = apiClient.addTask(ANY_TASK)
+
+        assertEquals(UnknownApiError(418), error)
     }
 
     @Test
-    @Throws(Exception::class)
     fun sendsTheRequestToTheCorrectPathDeletingATask() {
         enqueueMockResponse()
 
@@ -153,24 +154,25 @@ class TodoApiClientTest : MockWebServerTest() {
         assertDeleteRequestSentTo("/todos/1")
     }
 
-    @Test(expected = ItemNotFoundException::class)
-    @Throws(Exception::class)
+    @Test
     fun returnsItemNotFoundIfThereIsNoTaskWithIdTheAssociateId() {
         enqueueMockResponse(404)
 
-        apiClient.deleteTaskById(ANY_TASK_ID)
-    }
+        val error = apiClient.deleteTaskById(ANY_TASK_ID)
 
-    @Test(expected = UnknownErrorException::class)
-    @Throws(Exception::class)
-    fun returnsUnknownErrorIfThereIsAnyErrorDeletingTask() {
-        enqueueMockResponse(418)
-
-        apiClient.deleteTaskById(ANY_TASK_ID)
+        assertEquals(ItemNotFoundError, error)
     }
 
     @Test
-    @Throws(Exception::class)
+    fun returnsUnknownErrorIfThereIsAnyErrorDeletingTask() {
+        enqueueMockResponse(418)
+
+        val error = apiClient.deleteTaskById(ANY_TASK_ID)
+
+        assertEquals(UnknownApiError(418), error)
+    }
+
+    @Test
     fun sendsTheExpectedBodyUpdatingATask() {
         enqueueMockResponse(200, "updateTaskResponse.json")
 
@@ -180,7 +182,6 @@ class TodoApiClientTest : MockWebServerTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun sendsRequestToTheCorrectPathUpdatingATask() {
         enqueueMockResponse(200, "updateTaskResponse.json")
 
@@ -190,29 +191,30 @@ class TodoApiClientTest : MockWebServerTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun parsesTheTaskProperlyUpdatingATask() {
         enqueueMockResponse(200, "updateTaskResponse.json")
 
-        val task = apiClient.updateTaskById(ANY_TASK)
+        val task = apiClient.updateTaskById(ANY_TASK).component2()!!
 
         assertTaskContainsExpectedValues(task)
     }
 
-    @Test(expected = ItemNotFoundException::class)
-    @Throws(Exception::class)
+    @Test
     fun returnsItemNotFoundErrorIfThereIsNoTaskToUpdateWithTheUsedId() {
         enqueueMockResponse(404)
 
-        apiClient.updateTaskById(ANY_TASK)
+        val (error) = apiClient.updateTaskById(ANY_TASK)
+
+        assertEquals(ItemNotFoundError, error)
     }
 
-    @Test(expected = UnknownErrorException::class)
-    @Throws(Exception::class)
+    @Test
     fun returnsUnknownErrorIfThereIsAnyHandledErrorUpdatingATask() {
         enqueueMockResponse(418)
 
-        apiClient.updateTaskById(ANY_TASK)
+        val (error) = apiClient.updateTaskById(ANY_TASK)
+
+        assertEquals(UnknownApiError(418), error)
     }
 
     private fun assertTaskContainsExpectedValues(task: TaskDto?) {
@@ -221,11 +223,5 @@ class TodoApiClientTest : MockWebServerTest() {
         assertEquals(task?.userId, "1")
         assertEquals(task?.title, "delectus aut autem")
         assertFalse(task!!.isFinished)
-    }
-
-    companion object {
-
-        private val ANY_TASK_ID = "1"
-        private val ANY_TASK = TaskDto("1", "2", "Finish this kata", false)
     }
 }
