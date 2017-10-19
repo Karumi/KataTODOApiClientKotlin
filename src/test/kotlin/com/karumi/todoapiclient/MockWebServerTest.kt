@@ -13,12 +13,15 @@ import java.io.File
 
 open class MockWebServerTest {
 
-    private lateinit var server: MockWebServer
+    companion object {
+        private val FILE_ENCODING = "UTF-8"
+    }
+
+    private var server: MockWebServer = MockWebServer()
 
     @Before
     open fun setUp() {
-        this.server = MockWebServer()
-        this.server.start()
+        server.start()
     }
 
     @After
@@ -101,10 +104,4 @@ open class MockWebServerTest {
 
     private fun getRecordedRequestAtIndex(requestIndex: Int): RecordedRequest? =
             (0..requestIndex).map { server.takeRequest() }.last()
-
-    companion object {
-
-        private val FILE_ENCODING = "UTF-8"
-    }
-
 }
