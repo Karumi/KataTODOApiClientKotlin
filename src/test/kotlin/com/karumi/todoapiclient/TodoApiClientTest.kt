@@ -7,15 +7,8 @@ import org.junit.Before
 import org.junit.Test
 import todoapiclient.TodoApiClient
 import todoapiclient.dto.TaskDto
-import todoapiclient.exception.ItemNotFoundError
-import todoapiclient.exception.UnknownApiError
 
 class TodoApiClientTest : MockWebServerTest() {
-
-    companion object {
-        private val ANY_TASK_ID = "1"
-        private val ANY_TASK = TaskDto("1", "2", "Finish this kata", false)
-    }
 
     private lateinit var apiClient: TodoApiClient
 
@@ -36,15 +29,6 @@ class TodoApiClientTest : MockWebServerTest() {
     }
 
     @Test
-    fun sendsContentTypeHeader() {
-        enqueueMockResponse(200, "getTasksResponse.json")
-
-        apiClient.allTasks
-
-        assertRequestContainsHeader("Content-Type", "application/json")
-    }
-
-    @Test
     fun sendsGetAllTaskRequestToTheCorrectEndpoint() {
         enqueueMockResponse(200, "getTasksResponse.json")
 
@@ -61,160 +45,6 @@ class TodoApiClientTest : MockWebServerTest() {
 
         assertEquals(200, tasks.size.toLong())
         assertTaskContainsExpectedValues(tasks[0])
-    }
-
-    @Test
-    fun throwsUnknownErrorExceptionIfThereIsNotHandledErrorGettingAllTasks() {
-        enqueueMockResponse(418)
-
-        val (error) = apiClient.allTasks
-
-        assertEquals(UnknownApiError(418), error)
-    }
-
-    @Test
-    fun sendsGetTaskByIdRequestToTheCorrectPath() {
-        enqueueMockResponse(200, "getTaskByIdResponse.json")
-
-        apiClient.getTaskById(ANY_TASK_ID)
-
-        assertGetRequestSentTo("/todos/" + ANY_TASK_ID)
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun parsesTaskProperlyGettingTaskById() {
-        enqueueMockResponse(200, "getTaskByIdResponse.json")
-
-        val task = apiClient.getTaskById(ANY_TASK_ID).component2()!!
-
-        assertTaskContainsExpectedValues(task)
-    }
-
-    @Test
-    fun returnsItemNotFoundGettingTaskByIdIfThereIsNoTaskWithThePassedId() {
-        enqueueMockResponse(404)
-
-        val (error) = apiClient.getTaskById(ANY_TASK_ID)
-
-        assertEquals(ItemNotFoundError, error)
-    }
-
-    @Test
-    fun throwsUnknownErrorExceptionIfThereIsNotHandledErrorGettingTaskById() {
-        enqueueMockResponse(418)
-
-        val (error) = apiClient.getTaskById(ANY_TASK_ID)
-
-        assertEquals(UnknownApiError(418), error)
-    }
-
-    @Test
-    fun sendsAddTaskRequestToTheCorrectPath() {
-        enqueueMockResponse(201, "addTaskResponse.json")
-
-        apiClient.addTask(ANY_TASK)
-
-        assertPostRequestSentTo("/todos")
-    }
-
-    @Test
-    fun sendsTheCorrectBodyAddingANewTask() {
-        enqueueMockResponse(201, "addTaskResponse.json")
-
-        apiClient.addTask(ANY_TASK)
-
-        assertRequestBodyEquals("addTaskRequest.json")
-    }
-
-    @Test
-    fun testParsesTheTaskCreatedProperlyAddingANewTask() {
-        enqueueMockResponse(201, "addTaskResponse.json")
-
-        val task = apiClient.addTask(ANY_TASK).component2()!!
-
-        assertTaskContainsExpectedValues(task)
-    }
-
-    @Test
-    fun returnsUnknownErrorIfThereIsAnyErrorAddingATask() {
-        enqueueMockResponse(418)
-
-        val (error) = apiClient.addTask(ANY_TASK)
-
-        assertEquals(UnknownApiError(418), error)
-    }
-
-    @Test
-    fun sendsTheRequestToTheCorrectPathDeletingATask() {
-        enqueueMockResponse()
-
-        apiClient.deleteTaskById(ANY_TASK_ID)
-
-        assertDeleteRequestSentTo("/todos/1")
-    }
-
-    @Test
-    fun returnsItemNotFoundIfThereIsNoTaskWithIdTheAssociateId() {
-        enqueueMockResponse(404)
-
-        val error = apiClient.deleteTaskById(ANY_TASK_ID)
-
-        assertEquals(ItemNotFoundError, error)
-    }
-
-    @Test
-    fun returnsUnknownErrorIfThereIsAnyErrorDeletingTask() {
-        enqueueMockResponse(418)
-
-        val error = apiClient.deleteTaskById(ANY_TASK_ID)
-
-        assertEquals(UnknownApiError(418), error)
-    }
-
-    @Test
-    fun sendsTheExpectedBodyUpdatingATask() {
-        enqueueMockResponse(200, "updateTaskResponse.json")
-
-        apiClient.updateTaskById(ANY_TASK)
-
-        assertRequestBodyEquals("updateTaskRequest.json")
-    }
-
-    @Test
-    fun sendsRequestToTheCorrectPathUpdatingATask() {
-        enqueueMockResponse(200, "updateTaskResponse.json")
-
-        apiClient.updateTaskById(ANY_TASK)
-
-        assertRequestSentTo("/todos/1")
-    }
-
-    @Test
-    fun parsesTheTaskProperlyUpdatingATask() {
-        enqueueMockResponse(200, "updateTaskResponse.json")
-
-        val task = apiClient.updateTaskById(ANY_TASK).component2()!!
-
-        assertTaskContainsExpectedValues(task)
-    }
-
-    @Test
-    fun returnsItemNotFoundErrorIfThereIsNoTaskToUpdateWithTheUsedId() {
-        enqueueMockResponse(404)
-
-        val (error) = apiClient.updateTaskById(ANY_TASK)
-
-        assertEquals(ItemNotFoundError, error)
-    }
-
-    @Test
-    fun returnsUnknownErrorIfThereIsAnyHandledErrorUpdatingATask() {
-        enqueueMockResponse(418)
-
-        val (error) = apiClient.updateTaskById(ANY_TASK)
-
-        assertEquals(UnknownApiError(418), error)
     }
 
     private fun assertTaskContainsExpectedValues(task: TaskDto?) {
