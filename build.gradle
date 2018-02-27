@@ -2,7 +2,7 @@ group 'com.karumi'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.1.51'
+    ext.kotlin_version = '1.2.21'
     repositories {
         mavenCentral()
         jcenter()
@@ -27,17 +27,17 @@ repositories {
 mainClassName = "todoapiclient.TodoApiClientPlayground"
 
 dependencies {
-    ktlint 'com.github.shyiko:ktlint:0.9.0'
-    compile 'com.squareup.okhttp:okhttp:2.5.0'
+    ktlint 'com.github.shyiko:ktlint:0.16.0'
+    compile 'com.squareup.okhttp:okhttp:2.7.5'
     compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
     compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
-    compile 'com.google.code.gson:gson:2.5'
-    compile 'com.squareup.okio:okio:1.0.0'
-    compile 'org.funktionale:funktionale-either:1.1'
-    testCompile 'junit:junit:4.11'
-    testCompile 'org.mockito:mockito-all:1.9.5'
-    testCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
-    testCompile 'commons-io:commons-io:2.4'
+    compile 'com.google.code.gson:gson:2.8.2'
+    compile 'com.squareup.okio:okio:1.14.0'
+    compile 'org.funktionale:funktionale-either:1.2'
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-all:1.10.19'
+    testCompile 'com.squareup.okhttp:mockwebserver:2.7.5'
+    testCompile 'commons-io:commons-io:2.6'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
 
