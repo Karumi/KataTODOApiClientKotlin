@@ -21,8 +21,10 @@ internal interface TodoService {
     fun add(@Body task: TaskDto): Call<TaskDto>
 
     @PUT("/todos/{taskId}")
-    fun updateById(@Path("taskId") taskId: String,
-                   @Body task: TaskDto): Call<TaskDto>
+    fun updateById(
+        @Path("taskId") taskId: String,
+        @Body task: TaskDto
+    ): Call<TaskDto>
 
     @DELETE("/todos/{taskId}")
     fun deleteById(@Path("taskId") taskId: String): Call<Void>
