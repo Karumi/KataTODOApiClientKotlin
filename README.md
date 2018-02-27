@@ -62,6 +62,13 @@ There are some links which can be useful to finish these tasks:
 * [Retrofit documentation][retrofit]
 * [World-Class Testing Development Pipeline for Android - Part 3][wordl-class-testing-development-pipeline]
 
+# Contributors
+
+Thank you all for your work!
+
+| [<img src="https://avatars2.githubusercontent.com/u/201209?v=4" width="100px;"/><br /><sub><b>Igor Ganapolsky</b></sub>](https://github.com/IgorGanapolsky) |
+| :---: |
+
 # License
 
 Copyright 2017 Karumi
