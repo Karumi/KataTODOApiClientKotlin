@@ -1,8 +1,8 @@
 package com.karumi.todoapiclient
 
-import com.squareup.okhttp.mockwebserver.MockResponse
-import com.squareup.okhttp.mockwebserver.MockWebServer
-import com.squareup.okhttp.mockwebserver.RecordedRequest
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.apache.commons.io.FileUtils
 import org.hamcrest.core.StringContains.containsString
 import org.junit.After
@@ -14,7 +14,7 @@ import java.io.File
 open class MockWebServerTest {
 
     companion object {
-        private val FILE_ENCODING = "UTF-8"
+        private const val FILE_ENCODING = "UTF-8"
     }
 
     private var server: MockWebServer = MockWebServer()
@@ -103,5 +103,5 @@ open class MockWebServerTest {
     }
 
     private fun getRecordedRequestAtIndex(requestIndex: Int): RecordedRequest? =
-            (0..requestIndex).map { server.takeRequest() }.last()
+        (0..requestIndex).map { server.takeRequest() }.last()
 }

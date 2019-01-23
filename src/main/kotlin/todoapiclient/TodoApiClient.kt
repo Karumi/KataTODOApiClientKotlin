@@ -1,9 +1,9 @@
 package todoapiclient
 
-import org.funktionale.either.Either
-import retrofit.GsonConverterFactory
-import retrofit.Response
-import retrofit.Retrofit
+import okhttp3.OkHttpClient
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import todoapiclient.TodoApiClientConfig.BASE_ENDPOINT
 import todoapiclient.dto.TaskDto
 import todoapiclient.exception.ItemNotFoundError
@@ -18,11 +18,12 @@ class TodoApiClient @JvmOverloads constructor(baseEndpoint: String = BASE_ENDPOI
     private val todoService: TodoService
 
     init {
+        val client = OkHttpClient().newBuilder().addInterceptor(DefaultHeadersInterceptor()).build()
         val retrofit = Retrofit.Builder()
                 .baseUrl(baseEndpoint)
+                .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
-        retrofit.client().interceptors().add(DefaultHeadersInterceptor())
         this.todoService = retrofit.create(TodoService::class.java)
     }
 
@@ -57,7 +58,7 @@ class TodoApiClient @JvmOverloads constructor(baseEndpoint: String = BASE_ENDPOI
 
     fun deleteTaskById(taskId: String): TodoApiClientError? = try {
         val response = todoService.deleteById(taskId).execute()
-        inspectResponseForErrors(response).component1()
+        inspectResponseForErrors(response).left
     } catch (e: IOException) {
         NetworkError
     }
@@ -65,6 +66,7 @@ class TodoApiClient @JvmOverloads constructor(baseEndpoint: String = BASE_ENDPOI
     private fun <T> inspectResponseForErrors(response: Response<T>): Either<TodoApiClientError, T> = when {
         response.code() == 404 -> Either.left(ItemNotFoundError)
         response.code() >= 400 -> Either.left(UnknownApiError(response.code()))
-        else -> Either.right(response.body())
+        response.body() == null -> Either.left(UnknownApiError(response.code()))
+        else -> Either.right(response.body()!!)
     }
 }
