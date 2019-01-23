@@ -41,7 +41,7 @@ class TodoApiClientTest : MockWebServerTest() {
     fun parsesTasksProperlyGettingAllTheTasks() {
         enqueueMockResponse(200, "getTasksResponse.json")
 
-        val tasks = apiClient.allTasks.component2()!!
+        val tasks = apiClient.allTasks.right!!
 
         assertEquals(200, tasks.size.toLong())
         assertTaskContainsExpectedValues(tasks[0])
