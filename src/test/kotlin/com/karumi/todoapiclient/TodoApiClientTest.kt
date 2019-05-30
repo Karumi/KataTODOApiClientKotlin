@@ -2,6 +2,7 @@ package com.karumi.todoapiclient
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -45,6 +46,16 @@ class TodoApiClientTest : MockWebServerTest() {
 
         assertEquals(200, tasks.size.toLong())
         assertTaskContainsExpectedValues(tasks[0])
+    }
+
+    @Test
+    fun parsesAnEmptyListOfTasksIfThereAreNoTasksCreatedBefore() {
+        enqueueMockResponse(200, "emptyTasksResponse.json")
+
+        val tasks = apiClient.allTasks
+
+        assertNotNull(tasks.right)
+        assertTrue(tasks.right?.isEmpty() ?: false)
     }
 
     private fun assertTaskContainsExpectedValues(task: TaskDto?) {
