@@ -14,6 +14,7 @@ import todoapiclient.exception.UnknownApiError
 class TodoApiClientTest : MockWebServerTest() {
 
     private lateinit var apiClient: TodoApiClient
+    val ANY_TASK_ID = 1.toString()
 
     @Before
     override fun setUp() {
@@ -93,7 +94,7 @@ class TodoApiClientTest : MockWebServerTest() {
     fun throwsTheRightExceptionWhenRequestedTaskIsNotFound() {
         enqueueMockResponse(404)
 
-        val error = apiClient.getTaskById(1.toString())
+        val error = apiClient.getTaskById(ANY_TASK_ID)
 
         assertNotNull(error.left)
         assertEquals(ItemNotFoundError, error.left)
