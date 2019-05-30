@@ -8,6 +8,8 @@ import org.junit.Before
 import org.junit.Test
 import todoapiclient.TodoApiClient
 import todoapiclient.dto.TaskDto
+import todoapiclient.exception.ItemNotFoundError
+import todoapiclient.exception.UnknownApiError
 
 class TodoApiClientTest : MockWebServerTest() {
 
@@ -56,6 +58,55 @@ class TodoApiClientTest : MockWebServerTest() {
 
         assertNotNull(tasks.right)
         assertTrue(tasks.right?.isEmpty() ?: false)
+    }
+
+    @Test
+    fun throwsUnknownErrorExceptionIfThereIsNoHandledErrorGettingAt() {
+        enqueueMockResponse(418)
+
+        val error = apiClient.allTasks.left!!
+
+        assertEquals(UnknownApiError(418), error)
+    }
+
+    @Test
+    fun sendsAGetTaskByIdRequestToTheRightPath() {
+        enqueueMockResponse(200, "getTaskByIdResponse.json")
+
+        val taskId = 1.toString()
+
+        apiClient.getTaskById(taskId)
+
+        assertGetRequestSentTo("/todos/$taskId")
+    }
+
+    @Test
+    fun parsesASingleTaskWhenFindingATaskThatExistsById() {
+        enqueueMockResponse(200, "getTaskByIdResponse.json")
+
+        val task = apiClient.getTaskById(1.toString())
+
+        assertNotNull(task.right)
+    }
+
+    @Test
+    fun throwsTheRightExceptionWhenRequestedTaskIsNotFound() {
+        enqueueMockResponse(404)
+
+        val error = apiClient.getTaskById(1.toString())
+
+        assertNotNull(error.left)
+        assertEquals(ItemNotFoundError, error.left)
+    }
+
+    @Test
+    fun throwsTheRightExceptionWhenApiReturnsAnError() {
+        enqueueMockResponse(500)
+
+        val error = apiClient.getTaskById(1.toString())
+
+        assertNotNull(error.left)
+        assertEquals(UnknownApiError(500), error.left)
     }
 
     private fun assertTaskContainsExpectedValues(task: TaskDto?) {
