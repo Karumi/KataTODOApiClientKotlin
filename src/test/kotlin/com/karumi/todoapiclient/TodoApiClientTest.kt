@@ -15,6 +15,8 @@ class TodoApiClientTest : MockWebServerTest() {
 
     private lateinit var apiClient: TodoApiClient
     val ANY_TASK_ID = 1.toString()
+    val task = TaskDto("1", "1", "Finish this Kata", false)
+    val exampleTask = TaskDto("1", "1", "delectus aut autem", false)
 
     @Before
     override fun setUp() {
@@ -108,6 +110,24 @@ class TodoApiClientTest : MockWebServerTest() {
 
         assertNotNull(error.left)
         assertEquals(UnknownApiError(500), error.left)
+    }
+
+    @Test
+    fun sendsAddTaskRequestToTheRightPath() {
+        enqueueMockResponse(200, "addTaskResponse.json")
+
+        apiClient.addTask(task)
+
+        assertPostRequestSentTo("/todos")
+    }
+
+    @Test
+    fun addTaskRequestContainsExpectedValues() {
+        enqueueMockResponse(200, "addTaskResponse.json")
+
+        val result = apiClient.addTask(exampleTask)
+
+        assertTaskContainsExpectedValues(result.right)
     }
 
     private fun assertTaskContainsExpectedValues(task: TaskDto?) {
